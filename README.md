@@ -60,8 +60,8 @@ flowchart TD
         Cosine --> Threshold{"Similarity >= 0.62 ?"}
     end
 
-    Threshold -->|No (< 0.62)| Fast["Fast Tier (Groq)<br/>Model: openai/gpt-oss-20b<br/>Target: &lt; 500ms TTFT"]
-    Threshold -->|Yes (>= 0.62)| Reason["Reasoning Tier (Gemini)<br/>Model: gemini-3.6-flash<br/>Target: Deep Analysis & Synthesis"]
+    Threshold -->|"No (< 0.62)"| Fast["Fast Tier (Groq)<br/>Model: openai/gpt-oss-20b<br/>Target: &lt; 500ms TTFT"]
+    Threshold -->|"Yes (>= 0.62)"| Reason["Reasoning Tier (Gemini)<br/>Model: gemini-3.6-flash<br/>Target: Deep Analysis & Synthesis"]
 
     Fast -->|Raw Token Stream| Client
     Reason -->|Raw Token Stream| Client
