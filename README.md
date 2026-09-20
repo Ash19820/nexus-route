@@ -51,20 +51,19 @@ Nexus-Route enforces workload separation at the network edge:
 
 ```mermaid
 flowchart TD
-    Client["Client Application<br/>(OpenAI SDK / HTTP)"] -->|POST /v1/chat/completions| GW["Nexus-Route Edge Gateway"]
+    Client["Client Request<br/>(OpenAI SDK / HTTP)"] -->|POST /v1/chat/completions| GW["Nexus-Route Gateway"]
 
     subgraph Internal ["Internal Routing Engine (app/router.py)"]
-        GW --> Extract["Extract Last User Message"]
-        Extract --> Embed["FastEmbed Inference<br/>(BAAI/bge-small-en-v1.5 ONNX)"]
-        Embed --> Cosine["Calculate Cosine Similarity<br/>against Reasoning Centroid"]
-        Cosine --> Threshold{"Similarity >= 0.62 ?"}
+        GW --> Embed["FastEmbed ONNX<br/>(BAAI/bge-small-en-v1.5)"]
+        Embed --> Score{"Cosine Similarity<br/>>= 0.62 ?"}
     end
 
-    Threshold -->|"No (< 0.62)"| Fast["Fast Tier (Groq)<br/>Model: openai/gpt-oss-20b<br/>Target: &lt; 500ms TTFT"]
-    Threshold -->|"Yes (>= 0.62)"| Reason["Reasoning Tier (Gemini)<br/>Model: gemini-3.6-flash<br/>Target: Deep Analysis & Synthesis"]
+    Score -->|"No (< 0.62)"| Fast["Fast Tier (Groq)<br/>openai/gpt-oss-20b"]
+    Score -->|"Yes (>= 0.62)"| Reason["Reasoning Tier (Gemini)<br/>gemini-3.6-flash"]
 
-    Fast -->|Raw Token Stream| Client
-    Reason -->|Raw Token Stream| Client
+    Fast --> Stream["Zero-Buffer SSE Stream"]
+    Reason --> Stream
+    Stream --> ClientResp["Client Response"]
 ```
 
 ---
